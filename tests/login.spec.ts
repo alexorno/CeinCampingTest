@@ -1,34 +1,63 @@
-import {test} from "@playwright/test";
+import {expect, Locator, test} from "@playwright/test";
 import {DashboardPage} from "../pages/DashboardPage";
+import {ProductsPage} from "../pages/ProductsPage";
+import {tr} from "@faker-js/faker";
 
+test.describe.configure({mode: 'serial'})
+let product: {
+    imageUrl: string;
+    name: string;
+    description: string;
+    color: string;
+    material: string;
+    occupcapacity: number;
+    dimensions: string;
+    price: number;
+    category: string;
+    season: string;
+};
 
-test('successfully added item', async ({page}) => {
+test('Successfully added item', async ({page}) => {
     const {faker} = await import('@faker-js/faker');
     const dashboardPage = new DashboardPage(page);
+    product = {
+        imageUrl: faker.image.url({ width: 1000, height: 500 }),
+        name: faker.commerce.productName(),
+        description: faker.commerce.productDescription(),
+        color: 'blue',
+        material: faker.commerce.productMaterial(),
+        occupcapacity: faker.number.int({ min: 1, max: 20 }),
+        dimensions: '123x884x12cm',
+        price: Number(faker.commerce.price({ min: 10, max: 500 })),
+        category: 'Fire',
+        season: 'Summer',
+    };
     await dashboardPage.gotoDashboard();
-    const randomName = faker.image.url({width:1000, height:500})
-    console.log(randomName)
-    await dashboardPage.addProduct(
-       String(faker.image.url({width:1000, height:500})),
-        String(faker.commerce.productName()),
-        String(faker.commerce.productDescription()),
-        'blue',
-        String(faker.commerce.productMaterial()),
-        (faker.number.int({min:1, max:20})),
-        '123x884x12cm',
-        Number((faker.commerce.price({min: 10, max: 500}))),
-        'Fire',
-        'Summer',
-        );
+    await dashboardPage.addProduct(product);
 
-    const successMessageLocator = page.locator('form.admin-login:nth-child(1) p:last-child')
-    await successMessageLocator.waitFor({ state: 'visible', timeout:10000})
-    const text = await successMessageLocator.textContent();
+    const successMessageLocator:Locator = page.locator('form.admin-login:nth-child(1) p:last-child')
+    const successText:boolean = await expect(successMessageLocator).toBeVisible({timeout: 5000})
+        .then(()=> true)
+        .catch(() => false)
+    const successMessage:string = await successMessageLocator.textContent();
 
-    if (!text || text.trim() === '') {
-        throw new Error('Test Failed: The success message paragraph <p> is empty!');
+    if (!successText) {
+        expect(successText, 'Success message did not appear; Message contained: ' + successMessage).toBe(true)
     }
-
-    console.log(`Success message received: ${text}`);
 })
 
+// test('Successfully changed sort option', async({page}) => {
+//     const productsPage = new ProductsPage(page);
+//
+//     await productsPage.gotoProductsPage()
+//     const sortOption = 'descDate';
+//     await productsPage.setSort(sortOption)
+//
+//     console.log("changed to ", sortOption, " successfully")
+//     })
+
+test('Added product is shown successfully across 3 last added products on products page', async({page}) => {
+    const productsPage = new ProductsPage(page);
+    await productsPage.gotoProductsPage();
+    expect(await productsPage.checkLastThreeProductPresent(product), `Product '${product.name}' was not found in 3 last added products`).toBe(true)
+})
