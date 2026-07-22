@@ -1,4 +1,4 @@
-import {expect, Locator, Page} from '@playwright/test';
+import {Locator, Page} from '@playwright/test';
 import path = require("path");
 import * as fs from "node:fs";
 

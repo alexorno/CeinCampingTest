@@ -1,7 +1,6 @@
 import {expect, Locator, test} from "@playwright/test";
 import {DashboardPage} from "../pages/DashboardPage";
 import {ProductsPage} from "../pages/ProductsPage";
-import {tr} from "@faker-js/faker";
 
 test.describe.configure({mode: 'serial'})
 let product: {
