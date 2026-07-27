@@ -40,7 +40,7 @@ export class DashboardPage {
     }
 
     async gotoDashboard(){
-        await this.page.goto('https://cein-camping.vercel.app/dashboard')
+        await this.page.goto('/dashboard')
     }
 
     async login(email: string, password: string){

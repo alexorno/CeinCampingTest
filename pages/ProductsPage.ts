@@ -18,7 +18,7 @@ export class ProductsPage {
     }
 
     async gotoProductsPage(){
-        await this.page.goto('https://cein-camping.vercel.app/products')
+        await this.page.goto('/products')
     }
 
     async setSort(sortingMethod:string){
